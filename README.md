@@ -1,6 +1,6 @@
 # Year Progress & Goals Tracker
 
-![Project Preview](https://i.imgur.com/example-image.png) *[Add your own screenshot]*
+![Project Preview](https://i.imgur.com/example-image.png)
 
 A clean, responsive web application that tracks your yearly progress and helps you manage your goals with deadline awareness and progress tracking.
 
