@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0">
+  <title>Year Progress & Goals Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --primary-hover: #3a56d4;
+      --success-color: #4cc9f0;
+      --warning-color: #f8961e;
+      --danger-color: #f94144;
+      --text-color: #2b2d42;
+      --text-secondary: #6c757d;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --border-radius: 8px;
+      --box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      --transition: all 0.2s ease;
+      --progress-height: 0.75rem;
+      --compact-padding: 0.75rem;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.5;
+      padding: 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: var(--compact-padding);
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      color: var(--primary-color);
+    }
+
+    h2 {
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+    }
+
+    h3 {
+      font-size: clamp(1.1rem, 3.5vw, 1.25rem);
+    }
+
+    .text-muted {
+      color: var(--text-secondary);
+      font-size: 0.85em;
+    }
+
+    .progress-container {
+      margin: 1rem 0;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .progress-bar {
+      height: var(--progress-height);
+      background-color: #e9ecef;
+      border-radius: 50px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 50px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.15) 100%
+      );
+      transform: translateX(-100%);
+      animation: shimmer 1.5s infinite;
+    }
+
+    .progress-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .progress-detail {
+      background: rgba(67, 97, 238, 0.08);
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .progress-detail:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-detail strong {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--primary-color);
+      margin-top: 0.15rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.75rem;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-control {
+      flex: 1 1 150px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+      transition: var(--transition);
+      min-width: 0;
+      background-color: #f8f9fa;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.15);
+      background-color: white;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-bar label {
+      font-weight: 500;
+      margin-right: -0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .goal-list {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .goal-item {
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      border-left: 4px solid var(--text-secondary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .goal-item:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .goal-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .goal-target {
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: rgba(108, 117, 125, 0.08);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .goal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .goal-progress {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .goal-progress input {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-size: 0.85rem;
+      transition: var(--transition);
+      background-color: #f8f9fa;
+    }
+
+    .goal-progress input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.15);
+      background-color: white;
+    }
+
+    .goal-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .completed-badge {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* Status classes */
+    .status-upcoming { border-left-color: var(--success-color); }
+    .status-today { border-left-color: var(--warning-color); }
+    .status-overdue { border-left-color: var(--danger-color); }
+    .status-completed { border-left-color: var(--primary-color); }
+    .status-none { border-left-color: var(--text-secondary); }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 0.75rem;
+      }
+      
+      .card {
+        padding: 0.75rem;
+      }
+      
+      .form-row {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .progress-details {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .goal-header {
+        flex-direction: column;
+      }
+
+      .goal-title {
+        min-width: 100%;
+        margin-right: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .progress-details {
+        grid-template-columns: 1fr;
+      }
+
+      .goal-progress input {
+        min-width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .goal-item {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    /* Utility classes */
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 0.75rem; }
+    .mt-3 { margin-top: 1rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 0.75rem; }
+    .mb-3 { margin-bottom: 1rem; }
+    .text-center { text-align: center; }
+    .flex-grow { flex-grow: 1; }
+    .w-100 { width: 100%; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1 id="yearTitle"></h1>
+      <h2 id="currentDate" class="text-muted"></h2>
+
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>Year Progress</span>
+          <span id="progressPercentage">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+        <div class="progress-details">
+          <div class="progress-detail">
+            <span>Current Day</span>
+            <strong id="currentDay">0</strong>
+          </div>
+          <div class="progress-detail">
+            <span>Days Remaining</span>
+            <strong id="daysRemaining">0</strong>
+          </div>
+          <div class="progress-detail">
+            <span>Total Days</span>
+            <strong id="totalDays">0</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex-grow">
+        <h3>Your Goals for <span id="goalYear"></span></h3>
+      </div>
+
+      <div class="filter-bar">
+        <label for="goalFilter">Filter:</label>
+        <select id="goalFilter" class="form-control">
+          <option value="all">All Goals</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="today">Today</option>
+          <option value="overdue">Overdue</option>
+          <option value="completed">Completed</option>
+        </select>
+        <button id="exportBtn" class="btn btn-sm btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293V6.5z"/>
+            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+          </svg>
+          Export
+        </button>
+        <input type="file" id="importInput" accept=".json" style="display: none;">
+        <button id="importBtn" class="btn btn-sm btn-secondary btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.5 9.5a.5.5 0 0 0-1 0v1.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 11.293V9.5z"/>
+            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+          </svg>
+          Import
+        </button>
+      </div>
+
+      <form id="goalForm">
+        <div class="form-row">
+          <input type="text" name="name" class="form-control" placeholder="Goal name" required>
+          <input type="text" name="target" class="form-control" placeholder="Target (e.g., 12 or 'Complete')" required>
+          <input type="date" name="deadline" class="form-control" placeholder="Deadline (optional)">
+        </div>
+        <button type="submit" class="btn w-100 btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+          </svg>
+          Add New Goal
+        </button>
+      </form>
+
+      <ul class="goal-list" id="goalList"></ul>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const yearTitleEl = document.getElementById('yearTitle');
+      const currentDateEl = document.getElementById('currentDate');
+      const progressBarEl = document.getElementById('progressBar');
+      const progressPercentageEl = document.getElementById('progressPercentage');
+      const currentDayEl = document.getElementById('currentDay');
+      const daysRemainingEl = document.getElementById('daysRemaining');
+      const totalDaysEl = document.getElementById('totalDays');
+      const goalYearEl = document.getElementById('goalYear');
+      const goalFilterEl = document.getElementById('goalFilter');
+      const goalFormEl = document.getElementById('goalForm');
+      const goalListEl = document.getElementById('goalList');
+      const exportBtnEl = document.getElementById('exportBtn');
+      const importBtnEl = document.getElementById('importBtn');
+      const importInputEl = document.getElementById('importInput');
+      const toastEl = document.getElementById('toast');
+
+      // Constants
+      const currentYear = new Date().getFullYear();
+      const STORAGE_KEY = `goals-${currentYear}`;
+
+      // Initialize the app
+      function init() {
+        goalYearEl.textContent = currentYear;
+        updateYearProgress();
+        loadGoals();
+        setupEventListeners();
+      }
+
+      // Show toast notification
+      function showToast(message, duration = 3000) {
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
+        setTimeout(() => {
+          toastEl.classList.remove('show');
+        }, duration);
+      }
+
+      // Update year progress information
+      function updateYearProgress() {
+        const now = new Date();
+        const startOfYear = new Date(currentYear, 0, 1);
+        const endOfYear = new Date(currentYear + 1, 0, 1);
+        const totalDaysInYear = (endOfYear - startOfYear) / (1000 * 60 * 60 * 24);
+        const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
+        const daysRemaining = totalDaysInYear - dayOfYear;
+        const percentage = (dayOfYear / totalDaysInYear) * 100;
+
+        yearTitleEl.textContent = `${currentYear} Progress Tracker`;
+        currentDateEl.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        
+        progressBarEl.style.width = `${percentage.toFixed(2)}%`;
+        progressPercentageEl.textContent = `${percentage.toFixed(2)}%`;
+        currentDayEl.textContent = dayOfYear;
+        daysRemainingEl.textContent = daysRemaining;
+        totalDaysEl.textContent = totalDaysInYear;
+      }
+
+      // Load goals from localStorage
+      function loadGoals(filter = 'all') {
+        const now = new Date();
+        const goals = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        goalListEl.innerHTML = '';
+
+        if (goals.length === 0) {
+          goalListEl.innerHTML = `
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p>No goals yet. Add your first goal above!</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Sort goals by deadline (soonest first), then by creation date
+        goals.sort((a, b) => {
+          if (a.deadline && b.deadline) {
+            return new Date(a.deadline) - new Date(b.deadline);
+          } else if (a.deadline) {
+            return -1;
+          } else if (b.deadline) {
+            return 1;
+          }
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        let visibleGoals = 0;
+
+        goals.forEach((goal, index) => {
+          const deadline = goal.deadline ? new Date(goal.deadline) : null;
+          const isCompleted = goal.progress?.toString().trim() === goal.target?.toString().trim();
+          let status = 'none';
+
+          if (isCompleted) {
+            status = 'completed';
+          } else if (deadline) {
+            const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) status = 'overdue';
+            else if (diffDays === 0) status = 'today';
+            else if (diffDays <= 30) status = 'upcoming';
+          }
+
+          // Skip if doesn't match filter
+          if (filter !== 'all') {
+            if (filter === 'completed' && !isCompleted) return;
+            if (filter === 'overdue' && status !== 'overdue') return;
+            if (filter === 'today' && status !== 'today') return;
+            if (filter === 'upcoming' && !['upcoming', 'today'].includes(status)) return;
+          }
+
+          visibleGoals++;
+          createGoalElement(goal, index, status);
+        });
+
+        if (visibleGoals === 0) {
+          goalListEl.innerHTML = `
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p>No goals match your filter criteria.</p>
+            </div>
+          `;
+        }
+      }
+
+      // Create goal list item element
+      function createGoalElement(goal, index, status) {
+        const li = document.createElement('li');
+        li.className = `goal-item status-${status}`;
+        li.style.opacity = '0'; // Start invisible for animation
+
+        const isCompleted = goal.progress?.toString().trim() === goal.target?.toString().trim();
+        const progressValue = isCompleted ? goal.target : (goal.progress || '');
+        const deadlineText = goal.deadline 
+          ? new Date(goal.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : '—';
+        
+        li.innerHTML = `
+          <div class="goal-header">
+            <div class="goal-title">${goal.name}</div>
+            <div class="goal-target">${goal.target}</div>
+          </div>
+          <div class="goal-meta">
+            <span>Deadline: ${deadlineText}</span>
+            <span>Status: ${getStatusText(status)}</span>
+          </div>
+          <div class="goal-progress">
+            <input type="text" 
+                   class="form-control" 
+                   value="${escapeHtml(progressValue)}" 
+                   placeholder="Current progress" 
+                   onchange="updateGoalProgress(${index}, this.value)"
+                   ${isCompleted ? 'disabled' : ''}>
+            ${isCompleted ? '<span class="completed-badge">Completed!</span>' : ''}
+          </div>
+          <div class="goal-actions">
+            <button class="btn btn-sm btn-secondary" onclick="deleteGoal(${index})">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+        `;
+
+        goalListEl.appendChild(li);
+      }
+
+      // Escape HTML to prevent XSS
+      function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.toString()
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // Get human-readable status text
+      function getStatusText(status) {
+        const statusMap = {
+          'upcoming': 'Upcoming',
+          'today': 'Due Today',
+          'overdue': 'Overdue',
+          'completed': 'Completed',
+          'none': 'No Deadline'
+        };
+        return statusMap[status] || 'Unknown';
+      }
+
+      // Save new goal
+      function saveGoal(name, target, deadline) {
+        const goals = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        goals.push({ 
+          name, 
+          target, 
+          deadline,
+          progress: '',
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+        loadGoals(goalFilterEl.value);
+        showToast('Goal added successfully!');
+      }
+
+      // Update goal progress
+      function updateGoalProgress(index, value) {
+        const goals = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        if (index >= 0 && index < goals.length) {
+          goals[index].progress = value;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+          loadGoals(goalFilterEl.value);
+          showToast('Progress updated!');
+        }
+      }
+
+      // Delete goal
+      function deleteGoal(index) {
+        if (confirm('Are you sure you want to delete this goal?')) {
+          const goals = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+          goals.splice(index, 1);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+          loadGoals(goalFilterEl.value);
+          showToast('Goal deleted');
+        }
+      }
+
+      // Export goals to JSON file
+      function exportGoals() {
+        const goals = localStorage.getItem(STORAGE_KEY);
+        if (!goals) {
+          showToast("No goals to export", 2000);
+          return;
+        }
+
+        const blob = new Blob([goals], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `goals-${currentYear}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Goals exported successfully!');
+      }
+
+      // Import goals from JSON file
+      function importGoals(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const importedGoals = JSON.parse(e.target.result);
+            if (Array.isArray(importedGoals)) {
+              if (confirm(`Import ${importedGoals.length} goals? This will replace your current goals.`)) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(importedGoals));
+                loadGoals(goalFilterEl.value);
+                showToast('Goals imported successfully!');
+              }
+            } else {
+              showToast("Invalid goals format. Expected an array of goals.", 3000);
+            }
+          } catch (error) {
+            showToast("Failed to parse goals file: " + error.message, 3000);
+          }
+          // Reset input to allow re-importing the same file
+          event.target.value = '';
+        };
+        reader.onerror = () => showToast("Error reading file", 2000);
+        reader.readAsText(file);
+      }
+
+      // Set up event listeners
+      function setupEventListeners() {
+        goalFormEl.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const form = e.target;
+          const name = form.name.value.trim();
+          const target = form.target.value.trim();
+          const deadline = form.deadline.value;
+
+          if (name && target) {
+            saveGoal(name, target, deadline);
+            form.reset();
+            form.name.focus();
+          } else {
+            showToast('Please fill in all required fields', 2000);
+          }
+        });
+
+        goalFilterEl.addEventListener('change', () => {
+          loadGoals(goalFilterEl.value);
+        });
+
+        exportBtnEl.addEventListener('click', exportGoals);
+        importBtnEl.addEventListener('click', () => importInputEl.click());
+        importInputEl.addEventListener('change', importGoals);
+      }
+
+      // Make functions available globally
+      window.updateGoalProgress = updateGoalProgress;
+      window.deleteGoal = deleteGoal;
+
+      // Initialize the application
+      init();
+
+      // Update progress every hour
+      setInterval(updateYearProgress, 3600000);
+    });
+  </script>
+</body>
+</html>
